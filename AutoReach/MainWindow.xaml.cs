@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Windows;
+using Microsoft.Win32; // Required for the Browse Dialogs
 using AutoReach.Models;
 using AutoReach.Services;
 
@@ -62,8 +63,9 @@ namespace AutoReach
             File.WriteAllText(_settingsPath, json);
         }
 
-        // ================= DRAG AND DROP HANDLERS =================
+        // ================= FILE SELECTION HANDLERS =================
 
+        // 1. Drag & Drop Handlers
         private void Resume_Drop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -72,7 +74,7 @@ namespace AutoReach
                 if (files.Length > 0 && files[0].EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
                 {
                     TxtResumePath.Text = files[0];
-                    TxtResumePath.Foreground = System.Windows.Media.Brushes.Black; // Change color to indicate file loaded
+                    TxtResumePath.Foreground = System.Windows.Media.Brushes.Black;
                 }
                 else
                 {
@@ -89,12 +91,43 @@ namespace AutoReach
                 if (files.Length > 0 && files[0].EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
                 {
                     TxtListPath.Text = files[0];
-                    TxtListPath.Foreground = System.Windows.Media.Brushes.Black; // Change color to indicate file loaded
+                    TxtListPath.Foreground = System.Windows.Media.Brushes.Black;
                 }
                 else
                 {
                     MessageBox.Show("Please drop a valid TXT file for the email list.", "Invalid File", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
+            }
+        }
+
+        // 2. Browse Button Handlers
+        private void BrowseResume_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog
+            {
+                Filter = "PDF Files (*.pdf)|*.pdf",
+                Title = "Select your Resume"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                TxtResumePath.Text = dialog.FileName;
+                TxtResumePath.Foreground = System.Windows.Media.Brushes.Black;
+            }
+        }
+
+        private void BrowseList_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog
+            {
+                Filter = "Text Files (*.txt)|*.txt",
+                Title = "Select your Email List"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                TxtListPath.Text = dialog.FileName;
+                TxtListPath.Foreground = System.Windows.Media.Brushes.Black;
             }
         }
 
@@ -118,6 +151,7 @@ namespace AutoReach
                 DailyLimit = 50
             };
 
+
             // Set SentListPath relative to EmailListPath if it exists
             if (!string.IsNullOrWhiteSpace(settings.EmailListPath))
             {
@@ -127,9 +161,10 @@ namespace AutoReach
             // Basic validation
             if (string.IsNullOrWhiteSpace(settings.ResumePath) || string.IsNullOrWhiteSpace(settings.EmailListPath))
             {
-                MessageBox.Show("Please drag and drop both a resume (PDF) and an email list (TXT) before starting.", "Missing Files", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Please select both a resume (PDF) and an email list (TXT) before starting.", "Missing Files", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+
 
             // 2. Persist for next time
             SaveUserSettings(settings);
@@ -139,7 +174,6 @@ namespace AutoReach
             BtnStart.IsEnabled = false;
             BtnStop.IsEnabled = true;
 
-            // Handle progress updates by parsing the strings from EmailService to fit our new DataGrid
             var progress = new Progress<string>(msg =>
             {
                 Application.Current.Dispatcher.Invoke(() =>
@@ -149,19 +183,16 @@ namespace AutoReach
                     if (msg.Contains("Successfully sent to:"))
                     {
                         var email = msg.Split(':').Last().Trim();
-                        // Insert at index 0 so newest items appear at the top of the list
                         ActivityLogs.Insert(0, new ActivityLog { Recipient = email, Status = "Delivered", TimeSent = timeStr });
                     }
                     else if (msg.Contains("Failed to send to"))
                     {
-                        // Parse: "Failed to send to example@domain.com: Error message"
                         var parts = msg.Split(new[] { "to ", ":" }, StringSplitOptions.RemoveEmptyEntries);
                         var email = parts.Length > 1 ? parts[1].Trim() : "Unknown";
                         ActivityLogs.Insert(0, new ActivityLog { Recipient = email, Status = "Error", TimeSent = timeStr });
                     }
                     else
                     {
-                        // General system messages (like "Connecting to SMTP...")
                         ActivityLogs.Insert(0, new ActivityLog { Recipient = "System", Status = msg, TimeSent = timeStr });
                     }
                 });
@@ -188,6 +219,16 @@ namespace AutoReach
             }
         }
 
+        // ================= COMING SOON HANDLER =================
+        private void ComingSoon_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show(
+                "We are excited too! These features will be available in the next release. Stay tuned!",
+                "Coming Soon 🚀",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+
         private void BtnStop_Click(object sender, RoutedEventArgs e)
         {
             _cts?.Cancel();
@@ -195,7 +236,8 @@ namespace AutoReach
         }
     }
 
-    // Class representing a single row in the Recent Activity Grid
+
+
     public class ActivityLog
     {
         public string Recipient { get; set; } = string.Empty;

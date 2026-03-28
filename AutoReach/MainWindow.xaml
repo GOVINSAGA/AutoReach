@@ -36,7 +36,7 @@
             <StackPanel Margin="15">
                 <TextBlock Text="AutoReach Professional" Foreground="White" FontSize="16" FontWeight="Bold" Margin="0,10,0,20"/>
 
-                <Button Content="+ New Template" Background="#8B5CF6" Foreground="White" Height="35" BorderThickness="0" Margin="0,0,0,20">
+                <Button Content="+ New Template" Background="#8B5CF6" Foreground="White" Height="35" BorderThickness="0" Margin="0,0,0,20" Cursor="Hand" Click="ComingSoon_Click">
                     <Button.Resources>
                         <Style TargetType="Border">
                             <Setter Property="CornerRadius" Value="4"/>
@@ -44,11 +44,13 @@
                     </Button.Resources>
                 </Button>
 
-                <TextBlock Text="Standard Follow-up" Foreground="#9CA3AF" Margin="10,10,0,10"/>
+                <Button Content="Standard Follow-up" Foreground="#9CA3AF" Background="Transparent" BorderThickness="0" HorizontalAlignment="Left" Margin="5,10,0,10" Cursor="Hand" Click="ComingSoon_Click"/>
+
                 <Border Background="#1F2937" CornerRadius="4" Padding="10">
                     <TextBlock Text="Job Application v1" Foreground="White"/>
                 </Border>
-                <TextBlock Text="Recruiter Outreach" Foreground="#9CA3AF" Margin="10,10,0,10"/>
+
+                <Button Content="Recruiter Outreach" Foreground="#9CA3AF" Background="Transparent" BorderThickness="0" HorizontalAlignment="Left" Margin="5,10,0,10" Cursor="Hand" Click="ComingSoon_Click"/>
             </StackPanel>
         </Border>
 
@@ -100,7 +102,20 @@
                                         </VisualBrush.Visual>
                                     </VisualBrush>
                                 </Border.BorderBrush>
-                                <TextBlock x:Name="TxtResumePath" Text="Drag-and-drop your resume" Foreground="#6B7280" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="TxtResumePath" Grid.Column="0" Text="Drag-and-drop your resume" Foreground="#6B7280" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20,0,0,0" TextTrimming="CharacterEllipsis"/>
+                                    <Button Grid.Column="1" Content="Browse" Click="BrowseResume_Click" Margin="0,0,15,0" Padding="15,5" Height="30" Background="#E5E7EB" BorderThickness="0" Cursor="Hand">
+                                        <Button.Resources>
+                                            <Style TargetType="Border">
+                                                <Setter Property="CornerRadius" Value="4"/>
+                                            </Style>
+                                        </Button.Resources>
+                                    </Button>
+                                </Grid>
                             </Border>
 
                             <Border Style="{StaticResource DropZoneStyle}" Height="60" AllowDrop="True" Drop="EmailList_Drop">
@@ -111,7 +126,20 @@
                                         </VisualBrush.Visual>
                                     </VisualBrush>
                                 </Border.BorderBrush>
-                                <TextBlock x:Name="TxtListPath" Text="Drag-and-drop email list" Foreground="#6B7280" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="TxtListPath" Grid.Column="0" Text="Drag-and-drop email list" Foreground="#6B7280" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20,0,0,0" TextTrimming="CharacterEllipsis"/>
+                                    <Button Grid.Column="1" Content="Browse" Click="BrowseList_Click" Margin="0,0,15,0" Padding="15,5" Height="30" Background="#E5E7EB" BorderThickness="0" Cursor="Hand">
+                                        <Button.Resources>
+                                            <Style TargetType="Border">
+                                                <Setter Property="CornerRadius" Value="4"/>
+                                            </Style>
+                                        </Button.Resources>
+                                    </Button>
+                                </Grid>
                             </Border>
                         </StackPanel>
                     </Border>
