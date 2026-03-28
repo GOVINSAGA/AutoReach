@@ -1,247 +1,80 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Text.Json;
-using System.Threading;
 using System.Windows;
-using Microsoft.Win32; // Required for the Browse Dialogs
-using AutoReach.Models;
-using AutoReach.Services;
+using Microsoft.Win32;
+using AutoReach.ViewModels;
 
-namespace AutoReach
+namespace AutoReach;
+
+/// <summary>
+/// Interaction logic for MainWindow.xaml.
+/// Code-behind is intentionally minimal — all logic lives in <see cref="MainViewModel"/>.
+/// Only strictly view-specific concerns are handled here:
+///   - Drag-and-drop (requires UIElement events)
+///   - PasswordBox sync (WPF PasswordBox cannot data-bind for security reasons)
+///   - File browse dialogs
+/// </summary>
+public partial class MainWindow : Window
 {
-    public partial class MainWindow : Window
+    private MainViewModel ViewModel => (MainViewModel)DataContext;
+
+    public MainWindow()
     {
-        private CancellationTokenSource? _cts;
-        private readonly EmailService _emailService = new();
-        private readonly string _settingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "user_settings.json");
+        InitializeComponent();
+        DataContext = new MainViewModel();
 
-        // Collection to bind to the Activity DataGrid
-        public ObservableCollection<ActivityLog> ActivityLogs { get; set; } = new();
-
-        public MainWindow()
-        {
-            InitializeComponent();
-
-            // Bind the DataGrid to our collection
-            ActivityGrid.ItemsSource = ActivityLogs;
-
-            LoadUserSettings();
-        }
-
-        private void LoadUserSettings()
-        {
-            if (File.Exists(_settingsPath))
-            {
-                try
-                {
-                    var json = File.ReadAllText(_settingsPath);
-                    var settings = JsonSerializer.Deserialize<EmailSettings>(json);
-                    if (settings != null)
-                    {
-                        TxtEmail.Text = settings.Address;
-                        TxtPassword.Password = settings.AppPassword;
-                        TxtSubject.Text = settings.Subject;
-                        TxtBody.Text = settings.TemplateBody;
-
-                        // If path is saved, display it; otherwise show the default drag-and-drop text
-                        TxtResumePath.Text = string.IsNullOrWhiteSpace(settings.ResumePath) ? "Drag-and-drop your resume" : settings.ResumePath;
-                        TxtListPath.Text = string.IsNullOrWhiteSpace(settings.EmailListPath) ? "Drag-and-drop email list" : settings.EmailListPath;
-
-                        if (!string.IsNullOrWhiteSpace(settings.ResumePath)) TxtResumePath.Foreground = System.Windows.Media.Brushes.Black;
-                        if (!string.IsNullOrWhiteSpace(settings.EmailListPath)) TxtListPath.Foreground = System.Windows.Media.Brushes.Black;
-                    }
-                }
-                catch { /* Ignore deserialization errors on load */ }
-            }
-        }
-
-        private void SaveUserSettings(EmailSettings settings)
-        {
-            var json = JsonSerializer.Serialize(settings);
-            File.WriteAllText(_settingsPath, json);
-        }
-
-        // ================= FILE SELECTION HANDLERS =================
-
-        // 1. Drag & Drop Handlers
-        private void Resume_Drop(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                if (files.Length > 0 && files[0].EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
-                {
-                    TxtResumePath.Text = files[0];
-                    TxtResumePath.Foreground = System.Windows.Media.Brushes.Black;
-                }
-                else
-                {
-                    MessageBox.Show("Please drop a valid PDF file for the resume.", "Invalid File", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
-            }
-        }
-
-        private void EmailList_Drop(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                if (files.Length > 0 && files[0].EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
-                {
-                    TxtListPath.Text = files[0];
-                    TxtListPath.Foreground = System.Windows.Media.Brushes.Black;
-                }
-                else
-                {
-                    MessageBox.Show("Please drop a valid TXT file for the email list.", "Invalid File", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
-            }
-        }
-
-        // 2. Browse Button Handlers
-        private void BrowseResume_Click(object sender, RoutedEventArgs e)
-        {
-            var dialog = new OpenFileDialog
-            {
-                Filter = "PDF Files (*.pdf)|*.pdf",
-                Title = "Select your Resume"
-            };
-
-            if (dialog.ShowDialog() == true)
-            {
-                TxtResumePath.Text = dialog.FileName;
-                TxtResumePath.Foreground = System.Windows.Media.Brushes.Black;
-            }
-        }
-
-        private void BrowseList_Click(object sender, RoutedEventArgs e)
-        {
-            var dialog = new OpenFileDialog
-            {
-                Filter = "Text Files (*.txt)|*.txt",
-                Title = "Select your Email List"
-            };
-
-            if (dialog.ShowDialog() == true)
-            {
-                TxtListPath.Text = dialog.FileName;
-                TxtListPath.Foreground = System.Windows.Media.Brushes.Black;
-            }
-        }
-
-        // ================= EXECUTION LOGIC =================
-
-        private async void BtnStart_Click(object sender, RoutedEventArgs e)
-        {
-            // Reset logs
-            ActivityLogs.Clear();
-
-            // 1. Create settings from UI input
-            var settings = new EmailSettings
-            {
-                Address = TxtEmail.Text,
-                AppPassword = TxtPassword.Password,
-                Subject = TxtSubject.Text,
-                TemplateBody = TxtBody.Text,
-                // Ensure we don't save the placeholder instructional text as a path
-                ResumePath = TxtResumePath.Text.Contains("Drag-and-drop") ? "" : TxtResumePath.Text,
-                EmailListPath = TxtListPath.Text.Contains("Drag-and-drop") ? "" : TxtListPath.Text,
-                DailyLimit = 50
-            };
-
-
-            // Set SentListPath relative to EmailListPath if it exists
-            if (!string.IsNullOrWhiteSpace(settings.EmailListPath))
-            {
-                settings.SentListPath = Path.Combine(Path.GetDirectoryName(settings.EmailListPath) ?? "", "sent_emails.txt");
-            }
-
-            // Basic validation
-            if (string.IsNullOrWhiteSpace(settings.ResumePath) || string.IsNullOrWhiteSpace(settings.EmailListPath))
-            {
-                MessageBox.Show("Please select both a resume (PDF) and an email list (TXT) before starting.", "Missing Files", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-
-            // 2. Persist for next time
-            SaveUserSettings(settings);
-
-            // 3. Start processing
-            _cts = new CancellationTokenSource();
-            BtnStart.IsEnabled = false;
-            BtnStop.IsEnabled = true;
-
-            var progress = new Progress<string>(msg =>
-            {
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    string timeStr = DateTime.Now.ToString("hh:mm tt");
-
-                    if (msg.Contains("Successfully sent to:"))
-                    {
-                        var email = msg.Split(':').Last().Trim();
-                        ActivityLogs.Insert(0, new ActivityLog { Recipient = email, Status = "Delivered", TimeSent = timeStr });
-                    }
-                    else if (msg.Contains("Failed to send to"))
-                    {
-                        var parts = msg.Split(new[] { "to ", ":" }, StringSplitOptions.RemoveEmptyEntries);
-                        var email = parts.Length > 1 ? parts[1].Trim() : "Unknown";
-                        ActivityLogs.Insert(0, new ActivityLog { Recipient = email, Status = "Error", TimeSent = timeStr });
-                    }
-                    else
-                    {
-                        ActivityLogs.Insert(0, new ActivityLog { Recipient = "System", Status = msg, TimeSent = timeStr });
-                    }
-                });
-            });
-
-            try
-            {
-                await _emailService.ProcessEmailsAsync(settings, progress, _cts.Token);
-                MessageBox.Show("Batch processing finished!", "Complete", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-            catch (OperationCanceledException)
-            {
-                ActivityLogs.Insert(0, new ActivityLog { Recipient = "System", Status = "Stopped by user", TimeSent = DateTime.Now.ToString("hh:mm tt") });
-            }
-            catch (Exception ex)
-            {
-                ActivityLogs.Insert(0, new ActivityLog { Recipient = "System", Status = "Fatal Error", TimeSent = DateTime.Now.ToString("hh:mm tt") });
-                MessageBox.Show($"ERROR: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            finally
-            {
-                BtnStart.IsEnabled = true;
-                BtnStop.IsEnabled = false;
-            }
-        }
-
-        // ================= COMING SOON HANDLER =================
-        private void ComingSoon_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show(
-                "We are excited too! These features will be available in the next release. Stay tuned!",
-                "Coming Soon 🚀",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
-        }
-
-        private void BtnStop_Click(object sender, RoutedEventArgs e)
-        {
-            _cts?.Cancel();
-            BtnStop.IsEnabled = false;
-        }
+        // Populate PasswordBox after DataContext is set
+        TxtPassword.Password = ViewModel.AppPassword;
     }
 
+    // ── PasswordBox sync ─────────────────────────────────────────────────────
+    // PasswordBox intentionally does not support binding; sync manually.
 
+    private void TxtPassword_PasswordChanged(object sender, RoutedEventArgs e)
+        => ViewModel.AppPassword = TxtPassword.Password;
 
-    public class ActivityLog
+    // ── File Browse Dialogs ──────────────────────────────────────────────────
+
+    private void BrowseResume_Click(object sender, RoutedEventArgs e)
     {
-        public string Recipient { get; set; } = string.Empty;
-        public string Status { get; set; } = string.Empty;
-        public string TimeSent { get; set; } = string.Empty;
+        var dialog = new OpenFileDialog { Filter = "PDF Files (*.pdf)|*.pdf", Title = "Select your Resume" };
+        if (dialog.ShowDialog() == true)
+            ViewModel.ResumePath = dialog.FileName;
+    }
+
+    private void BrowseList_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new OpenFileDialog { Filter = "Text Files (*.txt)|*.txt", Title = "Select your Email List" };
+        if (dialog.ShowDialog() == true)
+            ViewModel.EmailListPath = dialog.FileName;
+    }
+
+    // ── Drag-and-Drop Handlers ───────────────────────────────────────────────
+
+    private void Resume_Drop(object sender, DragEventArgs e)
+    {
+        if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return;
+        var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+        if (files.Length > 0 && files[0].EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
+            ViewModel.ResumePath = files[0];
+        else
+            MessageBox.Show("Please drop a valid PDF file for the resume.", "Invalid File", MessageBoxButton.OK, MessageBoxImage.Warning);
+    }
+
+    private void EmailList_Drop(object sender, DragEventArgs e)
+    {
+        if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return;
+        var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+        if (files.Length > 0 && files[0].EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
+            ViewModel.EmailListPath = files[0];
+        else
+            MessageBox.Show("Please drop a valid TXT file for the email list.", "Invalid File", MessageBoxButton.OK, MessageBoxImage.Warning);
+    }
+
+    // ── Coming Soon ──────────────────────────────────────────────────────────
+
+    private void ComingSoon_Click(object sender, RoutedEventArgs e)
+    {
+        MessageBox.Show(
+            "We are excited too! These features will be available in the next release. Stay tuned!",
+            "Coming Soon 🚀", MessageBoxButton.OK, MessageBoxImage.Information);
     }
 }

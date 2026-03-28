@@ -1,0 +1,67 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Card panel used throughout the main layout -->
+    <Style x:Key="CardStyle" TargetType="Border">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="15"/>
+        <Setter Property="Margin" Value="0,0,0,15"/>
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="1" Color="#D0D5DD" Opacity="0.5"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Dashed-border drop zone for file drag-and-drop -->
+    <Style x:Key="DropZoneStyle" TargetType="Border">
+        <Setter Property="Background" Value="#F8FAFC"/>
+        <Setter Property="BorderBrush" Value="#CBD5E1"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- Rounded corner style applied to Button borders -->
+    <Style x:Key="RoundedButtonBorder" TargetType="Border">
+        <Setter Property="CornerRadius" Value="4"/>
+    </Style>
+
+    <!-- Primary action button (Start Batch) -->
+    <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="#2563EB"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Resources">
+            <Setter.Value>
+                <ResourceDictionary>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="4"/>
+                    </Style>
+                </ResourceDictionary>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Secondary button (Stop, Browse) -->
+    <Style x:Key="SecondaryButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="#F3F4F6"/>
+        <Setter Property="Foreground" Value="#374151"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Resources">
+            <Setter.Value>
+                <ResourceDictionary>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="4"/>
+                    </Style>
+                </ResourceDictionary>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

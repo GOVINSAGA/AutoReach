@@ -361,3 +361,16 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# ── AutoReach project-specific ────────────────────────────────────────────────
+# Runtime data files — these are generated/modified at runtime and must not
+# be committed. Users supply their own copies.
+AutoReach/Assets/emails.txt
+AutoReach/Assets/emailSentList.txt
+AutoReach/Assets/sent_emails.txt
+
+# Resume PDF — personal file, never commit to source control
+AutoReach/Assets/*.pdf
+
+# Persisted user settings (contains email address & app password)
+**/user_settings.json

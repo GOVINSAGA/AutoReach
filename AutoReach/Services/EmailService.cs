@@ -1,37 +1,35 @@
-﻿using System.IO;
+using System.IO;
 using MailKit.Net.Smtp;
 using MimeKit;
 using AutoReach.Models;
 
 namespace AutoReach.Services;
 
-public class EmailService
+/// <inheritdoc cref="IEmailService"/>
+public class EmailService : IEmailService
 {
+    /// <inheritdoc/>
     public async Task ProcessEmailsAsync(EmailSettings settings, IProgress<string> progress, CancellationToken ct)
     {
-        var baseDir = AppDomain.CurrentDomain.BaseDirectory;
-        var resumePath = Path.Combine(baseDir, settings.ResumePath);
-        var emailListPath = Path.Combine(baseDir, settings.EmailListPath);
-        var sentListPath = Path.Combine(baseDir, settings.SentListPath);
-
-        if (!File.Exists(emailListPath) || !File.Exists(resumePath))
+        if (!File.Exists(settings.EmailListPath) || !File.Exists(settings.ResumePath))
         {
-            progress.Report("Error: Required files (resume or email list) are missing in Assets.");
+            progress.Report("Error: Required files (resume or email list) not found.");
             return;
         }
 
-        var allEmails = (await File.ReadAllLinesAsync(emailListPath))
-            .Where(e => !string.IsNullOrWhiteSpace(e)).ToList();
+        var allEmails = (await File.ReadAllLinesAsync(settings.EmailListPath, ct))
+            .Where(e => !string.IsNullOrWhiteSpace(e))
+            .ToList();
 
-        var remainingEmails = new List<string>(allEmails);
-        var newlySentEmails = new List<string>();
-        int sentCount = 0;
+        var remainingEmails  = new List<string>(allEmails);
+        var newlySentEmails  = new List<string>();
+        int sentCount        = 0;
 
         using var client = new SmtpClient();
         try
         {
             progress.Report("Connecting to SMTP...");
-            await client.ConnectAsync("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls, ct);
+            await client.ConnectAsync(settings.SmtpHost, settings.SmtpPort, MailKit.Security.SecureSocketOptions.StartTls, ct);
             await client.AuthenticateAsync(settings.Address, settings.AppPassword, ct);
 
             foreach (var email in allEmails)
@@ -41,12 +39,12 @@ public class EmailService
                 try
                 {
                     var message = new MimeMessage();
-                    message.From.Add(new MailboxAddress("Govind Sagar", settings.Address));
-                    message.To.Add(new MailboxAddress("", email.Trim()));
+                    message.From.Add(new MailboxAddress(settings.SenderName, settings.Address));
+                    message.To.Add(new MailboxAddress(string.Empty, email.Trim()));
                     message.Subject = settings.Subject;
 
                     var builder = new BodyBuilder { TextBody = settings.TemplateBody };
-                    builder.Attachments.Add(resumePath);
+                    builder.Attachments.Add(settings.ResumePath);
                     message.Body = builder.ToMessageBody();
 
                     await client.SendAsync(message, ct);
@@ -57,8 +55,12 @@ public class EmailService
 
                     progress.Report($"[{sentCount}] Successfully sent to: {email}");
 
-                    // 3-second anti-spam delay
+                    // Anti-spam delay between sends
                     await Task.Delay(3000, ct);
+                }
+                catch (OperationCanceledException)
+                {
+                    throw; // Let the outer handler deal with cancellation
                 }
                 catch (Exception ex)
                 {
@@ -70,11 +72,11 @@ public class EmailService
         {
             if (client.IsConnected) await client.DisconnectAsync(true);
 
-            if (newlySentEmails.Any())
+            if (newlySentEmails.Count > 0)
             {
-                await File.AppendAllLinesAsync(sentListPath, newlySentEmails);
-                await File.WriteAllLinesAsync(emailListPath, remainingEmails);
-                progress.Report($"Batch Finished. {remainingEmails.Count} emails left.");
+                await File.AppendAllLinesAsync(settings.SentListPath, newlySentEmails, ct);
+                await File.WriteAllLinesAsync(settings.EmailListPath, remainingEmails, ct);
+                progress.Report($"Batch finished. {remainingEmails.Count} email(s) remaining.");
             }
         }
     }

@@ -1,0 +1,66 @@
+# EditorConfig — https://editorconfig.org
+# Top-most config file; stops editors from looking further up the tree.
+root = true
+
+# ── All files ─────────────────────────────────────────────────────────────────
+[*]
+charset                  = utf-8
+end_of_line              = crlf
+insert_final_newline     = true
+trim_trailing_whitespace = true
+
+# ── C# source files ───────────────────────────────────────────────────────────
+[*.cs]
+indent_style  = space
+indent_size   = 4
+tab_width     = 4
+
+# Naming: interfaces must start with I
+dotnet_naming_rule.interface_should_be_prefixed_with_I.severity = warning
+dotnet_naming_rule.interface_should_be_prefixed_with_I.symbols  = interface
+dotnet_naming_rule.interface_should_be_prefixed_with_I.style    = prefix_interface_with_I
+
+dotnet_naming_symbols.interface.applicable_kinds           = interface
+dotnet_naming_symbols.interface.applicable_accessibilities = public, internal
+
+dotnet_naming_style.prefix_interface_with_I.required_prefix = I
+dotnet_naming_style.prefix_interface_with_I.capitalization   = pascal_case
+
+# Naming: private fields use _camelCase
+dotnet_naming_rule.private_fields_should_be_camel_case.severity = suggestion
+dotnet_naming_rule.private_fields_should_be_camel_case.symbols  = private_fields
+dotnet_naming_rule.private_fields_should_be_camel_case.style    = underscore_camel_case
+
+dotnet_naming_symbols.private_fields.applicable_kinds           = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+
+dotnet_naming_style.underscore_camel_case.required_prefix = _
+dotnet_naming_style.underscore_camel_case.capitalization   = camel_case
+
+# Code style
+dotnet_style_qualification_for_field    = false : suggestion
+dotnet_style_qualification_for_property = false : suggestion
+dotnet_style_qualification_for_method   = false : suggestion
+dotnet_style_qualification_for_event    = false : suggestion
+
+csharp_prefer_braces                           = true      : suggestion
+csharp_style_expression_bodied_methods         = when_on_single_line : suggestion
+csharp_style_expression_bodied_properties      = true      : suggestion
+csharp_style_pattern_matching_over_is_with_cast_check = true : suggestion
+csharp_style_var_for_built_in_types            = false     : suggestion
+csharp_style_var_when_type_is_apparent         = true      : suggestion
+csharp_new_line_before_open_brace              = all
+
+# ── XAML files ────────────────────────────────────────────────────────────────
+[*.xaml]
+indent_style = space
+indent_size  = 4
+
+# ── Project / config files ────────────────────────────────────────────────────
+[*.{csproj,props,targets,slnx}]
+indent_style = tab
+indent_size  = 4
+
+[*.json]
+indent_style = space
+indent_size  = 2
