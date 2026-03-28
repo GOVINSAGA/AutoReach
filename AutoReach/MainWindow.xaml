@@ -1,0 +1,26 @@
+﻿<Window x:Class="AutoReach.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="AutoReach Email Automation" Height="450" Width="800" Background="#1E1E1E">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Automation Terminal" Foreground="White" FontSize="20" FontWeight="Bold" Margin="0,0,0,10"/>
+
+        <TextBox Grid.Row="1" Name="LogTerminal" 
+         IsReadOnly="True" VerticalScrollBarVisibility="Auto"
+         Background="Black" Foreground="Lime" FontFamily="Consolas"
+         TextWrapping="Wrap" Padding="10"/>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
+            <Button Name="BtnStart" Content="START BATCH" Width="120" Height="35" 
+                    Click="BtnStart_Click" Background="#007ACC" Foreground="White"/>
+            <Button Name="BtnStop" Content="STOP" Width="80" Height="35" Margin="10,0,0,0" 
+                    Click="BtnStop_Click" IsEnabled="False"/>
+        </StackPanel>
+    </Grid>
+</Window>
