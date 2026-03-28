@@ -30,6 +30,7 @@ public partial class MainWindow : Window
                 TxtEmail.Text = settings.Address;
                 TxtPassword.Password = settings.AppPassword;
                 TxtSubject.Text = settings.Subject;
+                TxtBody.Text = settings.TemplateBody; // Added this line
                 TxtResumePath.Text = settings.ResumePath;
                 TxtListPath.Text = settings.EmailListPath;
             }
@@ -62,9 +63,9 @@ public partial class MainWindow : Window
             Address = TxtEmail.Text,
             AppPassword = TxtPassword.Password,
             Subject = TxtSubject.Text,
+            TemplateBody = TxtBody.Text, // Grab the text from the UI here
             ResumePath = TxtResumePath.Text,
             EmailListPath = TxtListPath.Text,
-            TemplateBody = "Hello, please find my resume attached.", // You can add a TextBox for this too!
             DailyLimit = 50,
             SentListPath = Path.Combine(Path.GetDirectoryName(TxtListPath.Text) ?? "", "sent_emails.txt")
         };
