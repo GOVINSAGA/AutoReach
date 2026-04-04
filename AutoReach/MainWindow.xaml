@@ -76,6 +76,7 @@
                             <TextBlock Text="Subject line" Foreground="#4B5563" Margin="0,0,0,5"/>
                             <TextBox x:Name="TxtSubject" Height="35" Padding="5,0"
                                      Margin="0,0,0,15" BorderBrush="#D1D5DB"
+                                     AutomationProperties.Name="Subject line"
                                      Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged}"/>
 
                             <!-- Body -->
@@ -87,6 +88,7 @@
                             <TextBox x:Name="TxtBody" Height="150" TextWrapping="Wrap"
                                      AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
                                      BorderBrush="#D1D5DB" Padding="10" BorderThickness="1,0,1,1"
+                                     AutomationProperties.Name="Email body"
                                      Text="{Binding TemplateBody, UpdateSourceTrigger=PropertyChanged}"/>
 
                             <!-- Resume drop zone -->
@@ -112,7 +114,9 @@
                                     <Button Grid.Column="1" Content="Browse"
                                             Click="BrowseResume_Click"
                                             Margin="0,0,15,0" Padding="15,5" Height="30"
-                                            Background="#E5E7EB" BorderThickness="0" Cursor="Hand">
+                                            Background="#E5E7EB" BorderThickness="0" Cursor="Hand"
+                                            ToolTip="Select a PDF resume"
+                                            AutomationProperties.Name="Browse for resume">
                                         <Button.Resources>
                                             <Style TargetType="Border"><Setter Property="CornerRadius" Value="4"/></Style>
                                         </Button.Resources>
@@ -143,7 +147,9 @@
                                     <Button Grid.Column="1" Content="Browse"
                                             Click="BrowseList_Click"
                                             Margin="0,0,15,0" Padding="15,5" Height="30"
-                                            Background="#E5E7EB" BorderThickness="0" Cursor="Hand">
+                                            Background="#E5E7EB" BorderThickness="0" Cursor="Hand"
+                                            ToolTip="Select a TXT email list"
+                                            AutomationProperties.Name="Browse for email list">
                                         <Button.Resources>
                                             <Style TargetType="Border"><Setter Property="CornerRadius" Value="4"/></Style>
                                         </Button.Resources>
@@ -179,11 +185,13 @@
                                     <TextBlock Text="Sender Name" Foreground="#4B5563" Margin="0,0,0,5"/>
                                     <TextBox x:Name="TxtSenderName" Height="35" Padding="5,0"
                                              BorderBrush="#D1D5DB" Margin="0,0,0,10"
+                                             AutomationProperties.Name="Sender Name"
                                              Text="{Binding SenderName, UpdateSourceTrigger=PropertyChanged}"/>
 
                                     <TextBlock Text="Your Email" Foreground="#4B5563" Margin="0,0,0,5"/>
                                     <TextBox x:Name="TxtEmail" Height="35" Padding="5,0"
                                              BorderBrush="#D1D5DB"
+                                             AutomationProperties.Name="Your Email"
                                              Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
 
@@ -191,11 +199,13 @@
                                     <TextBlock Text="App Password" Foreground="#4B5563" Margin="0,0,0,5"/>
                                     <PasswordBox x:Name="TxtPassword" Height="35" Padding="5,0"
                                                  BorderBrush="#D1D5DB" Margin="0,0,0,10"
+                                                 AutomationProperties.Name="App Password"
                                                  PasswordChanged="TxtPassword_PasswordChanged"/>
 
                                     <TextBlock Text="Daily Limit" Foreground="#4B5563" Margin="0,0,0,5"/>
                                     <TextBox x:Name="TxtDailyLimit" Height="35" Padding="5,0"
                                              BorderBrush="#D1D5DB"
+                                             AutomationProperties.Name="Daily Limit"
                                              Text="{Binding DailyLimit, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
                             </Grid>
@@ -208,6 +218,7 @@
                             <TextBlock Text="Recent Activity" FontWeight="Bold" Margin="0,0,0,15"/>
                             <DataGrid x:Name="ActivityGrid"
                                       ItemsSource="{Binding ActivityLogs}"
+                                      AutomationProperties.Name="Recent Activity Logs"
                                       AutoGenerateColumns="False"
                                       HeadersVisibility="Column"
                                       GridLinesVisibility="Horizontal"
@@ -237,6 +248,7 @@
                                     Content="Start Batch" Height="40"
                                     Background="#2563EB" Foreground="White"
                                     Margin="0,0,5,0"
+                                    Cursor="Hand" ToolTip="Start sending emails"
                                     Command="{Binding StartCommand}">
                                 <Button.Resources>
                                     <Style TargetType="Border"><Setter Property="CornerRadius" Value="4"/></Style>
@@ -247,6 +259,7 @@
                                     Content="Stop" Height="40"
                                     Background="#F3F4F6" Foreground="#374151"
                                     Margin="5,0,0,0"
+                                    Cursor="Hand" ToolTip="Stop the current batch"
                                     Command="{Binding StopCommand}">
                                 <Button.Resources>
                                     <Style TargetType="Border"><Setter Property="CornerRadius" Value="4"/></Style>
