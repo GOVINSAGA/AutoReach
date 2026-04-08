@@ -1,0 +1,3 @@
+## 2026-04-08 - Adding Accessible Names in WPF
+**Learning:** In WPF desktop applications, the equivalent to HTML ARIA labels is the attached property `AutomationProperties.Name`. It is critical to apply this to standard input controls (`TextBox`, `PasswordBox`) and interactive elements (`Button`, `DataGrid`) that lack explicit associated label elements, ensuring screen readers can correctly announce their purpose.
+**Action:** Always add `AutomationProperties.Name` to input controls, interactive DataGrids, and icon/image-only buttons in XAML to maintain accessibility standards equivalent to web development practices.
