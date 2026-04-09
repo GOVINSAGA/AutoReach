@@ -1,0 +1,3 @@
+## 2026-04-09 - Implicit visual labels vs explicit ARIA labels in XAML
+**Learning:** In WPF applications like AutoReach, simply placing a `TextBlock` visually near a `TextBox` does not automatically associate them for screen readers, unlike some web patterns with implicitly wrapped labels. This leaves form fields and interactive grids completely unannounced, causing critical accessibility failures for screen reader users.
+**Action:** Always explicitly add `AutomationProperties.Name` directly to inputs, DataGrids, and context-dependent buttons (like multiple 'Browse' buttons) in XAML to ensure screen readers announce their purpose.
