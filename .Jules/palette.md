@@ -1,0 +1,3 @@
+## 2024-03-24 - Explicit ARIA equivalents in WPF
+**Learning:** In WPF XAML, visual labels (e.g., `TextBlock`) are not implicitly associated with input elements for screen readers. This differs from HTML where `label for` or nested labels work natively. This means inputs, context-dependent buttons (like generic "Browse" or "Edit" buttons), and complex data grids will not be properly announced without explicit properties.
+**Action:** Always manually add `AutomationProperties.Name` directly on input elements (`TextBox`, `PasswordBox`), `DataGrid`s, and generic buttons as an explicit ARIA equivalent to ensure screen readers can properly announce them.
