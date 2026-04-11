@@ -74,7 +74,7 @@
 
                             <!-- Subject -->
                             <TextBlock Text="Subject line" Foreground="#4B5563" Margin="0,0,0,5"/>
-                            <TextBox x:Name="TxtSubject" Height="35" Padding="5,0"
+                            <TextBox x:Name="TxtSubject" AutomationProperties.Name="Subject line" Height="35" Padding="5,0"
                                      Margin="0,0,0,15" BorderBrush="#D1D5DB"
                                      Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged}"/>
 
@@ -84,7 +84,7 @@
                                     Background="#F9FAFB" Padding="10,5" CornerRadius="4,4,0,0">
                                 <TextBlock Text="B  I  U  S  ... " Foreground="#6B7280" FontWeight="Bold"/>
                             </Border>
-                            <TextBox x:Name="TxtBody" Height="150" TextWrapping="Wrap"
+                            <TextBox x:Name="TxtBody" AutomationProperties.Name="Email body" Height="150" TextWrapping="Wrap"
                                      AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
                                      BorderBrush="#D1D5DB" Padding="10" BorderThickness="1,0,1,1"
                                      Text="{Binding TemplateBody, UpdateSourceTrigger=PropertyChanged}"/>
@@ -110,7 +110,7 @@
                                                VerticalAlignment="Center" Margin="20,0,0,0"
                                                TextTrimming="CharacterEllipsis"/>
                                     <Button Grid.Column="1" Content="Browse"
-                                            Click="BrowseResume_Click"
+                                            Click="BrowseResume_Click" AutomationProperties.Name="Browse for Resume"
                                             Margin="0,0,15,0" Padding="15,5" Height="30"
                                             Background="#E5E7EB" BorderThickness="0" Cursor="Hand">
                                         <Button.Resources>
@@ -141,7 +141,7 @@
                                                VerticalAlignment="Center" Margin="20,0,0,0"
                                                TextTrimming="CharacterEllipsis"/>
                                     <Button Grid.Column="1" Content="Browse"
-                                            Click="BrowseList_Click"
+                                            Click="BrowseList_Click" AutomationProperties.Name="Browse for Email List"
                                             Margin="0,0,15,0" Padding="15,5" Height="30"
                                             Background="#E5E7EB" BorderThickness="0" Cursor="Hand">
                                         <Button.Resources>
@@ -177,24 +177,24 @@
 
                                 <StackPanel Grid.Column="0" Margin="0,0,5,0">
                                     <TextBlock Text="Sender Name" Foreground="#4B5563" Margin="0,0,0,5"/>
-                                    <TextBox x:Name="TxtSenderName" Height="35" Padding="5,0"
+                                    <TextBox x:Name="TxtSenderName" AutomationProperties.Name="Sender Name" Height="35" Padding="5,0"
                                              BorderBrush="#D1D5DB" Margin="0,0,0,10"
                                              Text="{Binding SenderName, UpdateSourceTrigger=PropertyChanged}"/>
 
                                     <TextBlock Text="Your Email" Foreground="#4B5563" Margin="0,0,0,5"/>
-                                    <TextBox x:Name="TxtEmail" Height="35" Padding="5,0"
+                                    <TextBox x:Name="TxtEmail" AutomationProperties.Name="Your Email" Height="35" Padding="5,0"
                                              BorderBrush="#D1D5DB"
                                              Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1" Margin="5,0,0,0">
                                     <TextBlock Text="App Password" Foreground="#4B5563" Margin="0,0,0,5"/>
-                                    <PasswordBox x:Name="TxtPassword" Height="35" Padding="5,0"
+                                    <PasswordBox x:Name="TxtPassword" AutomationProperties.Name="App Password" Height="35" Padding="5,0"
                                                  BorderBrush="#D1D5DB" Margin="0,0,0,10"
                                                  PasswordChanged="TxtPassword_PasswordChanged"/>
 
                                     <TextBlock Text="Daily Limit" Foreground="#4B5563" Margin="0,0,0,5"/>
-                                    <TextBox x:Name="TxtDailyLimit" Height="35" Padding="5,0"
+                                    <TextBox x:Name="TxtDailyLimit" AutomationProperties.Name="Daily Limit" Height="35" Padding="5,0"
                                              BorderBrush="#D1D5DB"
                                              Text="{Binding DailyLimit, UpdateSourceTrigger=PropertyChanged}"/>
                                 </StackPanel>
@@ -206,7 +206,7 @@
                     <Border Grid.Row="1" Style="{StaticResource CardStyle}" Margin="0,220,0,0">
                         <StackPanel>
                             <TextBlock Text="Recent Activity" FontWeight="Bold" Margin="0,0,0,15"/>
-                            <DataGrid x:Name="ActivityGrid"
+                            <DataGrid x:Name="ActivityGrid" AutomationProperties.Name="Recent Activity"
                                       ItemsSource="{Binding ActivityLogs}"
                                       AutoGenerateColumns="False"
                                       HeadersVisibility="Column"

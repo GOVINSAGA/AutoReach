@@ -1,0 +1,3 @@
+## 2026-04-11 - Native WPF Accessibility
+**Learning:** In C# WPF desktop applications, the web equivalent of `aria-label` for screen readers is the `AutomationProperties.Name` attached property. Setting this natively exposes the element to UI automation tools like Microsoft Narrator without needing implicit label-association like in HTML.
+**Action:** When working on WPF application accessibility enhancements, directly use `AutomationProperties.Name="..."` on input fields (TextBox, PasswordBox), buttons, and interactive containers (DataGrid) rather than trying to associate them via adjacent TextBlocks.
