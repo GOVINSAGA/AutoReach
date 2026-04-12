@@ -1,0 +1,3 @@
+## 2024-04-12 - WPF Accessibility: Explicit ARIA Labels Needed for Inputs
+**Learning:** In WPF XAML, visual labels (e.g., `TextBlock`) are not implicitly associated with adjacent input elements, unlike native HTML forms where `for`/`id` linking handles this. Similarly, context-dependent buttons (like multiple "Browse" buttons) lack distinction for screen readers.
+**Action:** Always use `AutomationProperties.Name` directly on input elements (`TextBox`, `PasswordBox`), `DataGrid`s, and context-dependent buttons to serve as an explicit ARIA equivalent and ensure screen readers announce them properly.
