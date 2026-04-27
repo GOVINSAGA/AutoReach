@@ -235,23 +235,25 @@
                             </Grid.ColumnDefinitions>
 
                             <Button x:Name="BtnStart" Grid.Column="0"
-                                    Content="Start Batch" Height="40"
-                                    Background="#2563EB" Foreground="White"
                                     Margin="0,0,5,0"
                                     Command="{Binding StartCommand}">
-                                <Button.Resources>
-                                    <Style TargetType="Border"><Setter Property="CornerRadius" Value="4"/></Style>
-                                </Button.Resources>
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+                                        <Setter Property="Content" Value="Start Batch" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsBusy}" Value="True">
+                                                <Setter Property="Content" Value="Sending..." />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
                             </Button>
 
                             <Button x:Name="BtnStop" Grid.Column="1"
-                                    Content="Stop" Height="40"
-                                    Background="#F3F4F6" Foreground="#374151"
+                                    Content="Stop"
+                                    Style="{StaticResource SecondaryButtonStyle}"
                                     Margin="5,0,0,0"
                                     Command="{Binding StopCommand}">
-                                <Button.Resources>
-                                    <Style TargetType="Border"><Setter Property="CornerRadius" Value="4"/></Style>
-                                </Button.Resources>
                             </Button>
                         </Grid>
                     </Border>
