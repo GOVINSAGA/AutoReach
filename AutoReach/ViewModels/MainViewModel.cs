@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Text;
 using System.Windows;
 using System.Windows.Input;
 using AutoReach.Models;
@@ -139,8 +140,9 @@ public class MainViewModel : INotifyPropertyChanged
 
         try
         {
-            var json     = File.ReadAllText(_settingsPath);
-            var settings = JsonSerializer.Deserialize<EmailSettings>(json);
+            var json     = File.ReadAllText(_settingsPath, Encoding.UTF8);
+            var options  = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var settings = JsonSerializer.Deserialize<EmailSettings>(json, options);
             if (settings is null) return;
 
             SenderName    = settings.SenderName;
@@ -153,6 +155,8 @@ public class MainViewModel : INotifyPropertyChanged
             SmtpPort      = settings.SmtpPort;
             ResumePath    = settings.ResumePath;
             EmailListPath = settings.EmailListPath;
+            
+            System.Diagnostics.Debug.WriteLine($"[AutoReach] Loaded TemplateBody:\n{settings.TemplateBody}");
         }
         catch (Exception ex)
         {
@@ -164,8 +168,13 @@ public class MainViewModel : INotifyPropertyChanged
     private void SaveUserSettings()
     {
         var settings = BuildSettings();
-        var json     = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(_settingsPath, json);
+        var options  = new JsonSerializerOptions 
+        { 
+            WriteIndented = true,
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
+        var json     = JsonSerializer.Serialize(settings, options);
+        File.WriteAllText(_settingsPath, json, Encoding.UTF8);
     }
 
     private EmailSettings BuildSettings() => new()

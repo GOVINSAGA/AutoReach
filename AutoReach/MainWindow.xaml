@@ -86,8 +86,9 @@
                             </Border>
                             <TextBox x:Name="TxtBody" Height="150" TextWrapping="Wrap"
                                      AcceptsReturn="True" VerticalScrollBarVisibility="Auto"
+                                     HorizontalScrollBarVisibility="Disabled"
                                      BorderBrush="#D1D5DB" Padding="10" BorderThickness="1,0,1,1"
-                                     Text="{Binding TemplateBody, UpdateSourceTrigger=PropertyChanged}"/>
+                                     Text="{Binding TemplateBody, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
                             <!-- Resume drop zone -->
                             <Border Style="{StaticResource DropZoneStyle}" Height="60"
