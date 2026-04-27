@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Documents;
 using Microsoft.Win32;
 using AutoReach.ViewModels;
 
@@ -23,6 +24,61 @@ public partial class MainWindow : Window
 
         // Populate PasswordBox after DataContext is set
         TxtPassword.Password = ViewModel.AppPassword;
+        Loaded += MainWindow_Loaded;
+    }
+
+    // ── RichTextBox sync ─────────────────────────────────────────────────────
+
+    private bool _isUpdatingRichText = false;
+
+    private void TxtBody_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+    {
+        if (_isUpdatingRichText) return;
+
+        // Instead of plain text, we save the HTML representation to the ViewModel
+        // But we ALSO need to be able to load it back if they restart the app.
+        // For simplicity, we just save Xaml to TemplateBody and convert to HTML in EmailService.
+        // Wait, saving Xaml is easiest.
+        using (var ms = new System.IO.MemoryStream())
+        {
+            var textRange = new TextRange(TxtBody.Document.ContentStart, TxtBody.Document.ContentEnd);
+            textRange.Save(ms, DataFormats.Xaml);
+            ViewModel.TemplateBody = System.Text.Encoding.UTF8.GetString(ms.ToArray());
+        }
+    }
+
+    private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        // Initialize RichTextBox content from saved XAML settings
+        _isUpdatingRichText = true;
+        if (!string.IsNullOrWhiteSpace(ViewModel.TemplateBody))
+        {
+            try
+            {
+                // Try XAML first
+                if (ViewModel.TemplateBody.Contains("<Section"))
+                {
+                    using (var ms = new System.IO.MemoryStream(System.Text.Encoding.UTF8.GetBytes(ViewModel.TemplateBody)))
+                    {
+                        var textRange = new TextRange(TxtBody.Document.ContentStart, TxtBody.Document.ContentEnd);
+                        textRange.Load(ms, DataFormats.Xaml);
+                    }
+                }
+                else
+                {
+                    // Fallback to plain text if they had old settings
+                    var textRange = new TextRange(TxtBody.Document.ContentStart, TxtBody.Document.ContentEnd);
+                    textRange.Text = ViewModel.TemplateBody;
+                }
+            }
+            catch
+            {
+                // Fallback
+                var textRange = new TextRange(TxtBody.Document.ContentStart, TxtBody.Document.ContentEnd);
+                textRange.Text = ViewModel.TemplateBody;
+            }
+        }
+        _isUpdatingRichText = false;
     }
 
     // ── PasswordBox sync ─────────────────────────────────────────────────────
