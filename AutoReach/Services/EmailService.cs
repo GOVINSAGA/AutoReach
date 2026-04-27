@@ -43,8 +43,7 @@ public class EmailService : IEmailService
                     message.To.Add(new MailboxAddress(string.Empty, email.Trim()));
                     message.Subject = settings.Subject;
 
-                    var htmlBody = ConvertXamlToHtml(settings.TemplateBody);
-                    var builder = new BodyBuilder { HtmlBody = htmlBody };
+                    var builder = new BodyBuilder { TextBody = settings.TemplateBody };
                     builder.Attachments.Add(settings.ResumePath);
                     message.Body = builder.ToMessageBody();
 
@@ -81,82 +80,4 @@ public class EmailService : IEmailService
             }
         }
     }
-
-    private string ConvertXamlToHtml(string xaml)
-    {
-        if (string.IsNullOrWhiteSpace(xaml)) return string.Empty;
-        if (!xaml.Contains("<Section"))
-            return $"<div style=\"white-space: pre-wrap; font-family: sans-serif;\">{System.Net.WebUtility.HtmlEncode(xaml)}</div>";
-
-        try
-        {
-            var doc = System.Xml.Linq.XDocument.Parse(xaml);
-            var sb = new System.Text.StringBuilder();
-            var ns = doc.Root.Name.Namespace;
-
-            sb.Append("<div style=\"font-family: sans-serif;\">");
-            foreach (var element in doc.Root.Elements())
-            {
-                ParseXamlElement(element, sb, ns);
-            }
-            sb.Append("</div>");
-            return sb.ToString();
-        }
-        catch
-        {
-            return $"<div style=\"white-space: pre-wrap; font-family: sans-serif;\">{System.Net.WebUtility.HtmlEncode(xaml)}</div>";
-        }
-    }
-
-    private void ParseXamlElement(System.Xml.Linq.XElement element, System.Text.StringBuilder sb, System.Xml.Linq.XNamespace ns)
-    {
-        if (element.Name.LocalName == "Paragraph")
-        {
-            sb.Append("<p style=\"margin: 0; padding: 0;\">");
-            foreach (var child in element.Nodes())
-            {
-                if (child is System.Xml.Linq.XElement childEl) ParseXamlElement(childEl, sb, ns);
-                else if (child is System.Xml.Linq.XText text) sb.Append(System.Net.WebUtility.HtmlEncode(text.Value));
-            }
-            sb.Append("</p>");
-        }
-        else if (element.Name.LocalName == "List")
-        {
-            sb.Append("<ul style=\"margin: 0; padding-left: 20px;\">");
-            foreach (var item in element.Elements(ns + "ListItem"))
-            {
-                sb.Append("<li>");
-                foreach (var child in item.Elements()) ParseXamlElement(child, sb, ns);
-                sb.Append("</li>");
-            }
-            sb.Append("</ul>");
-        }
-        else if (element.Name.LocalName == "Run")
-        {
-            bool isBold = element.Attribute("FontWeight")?.Value == "Bold";
-            bool isItalic = element.Attribute("FontStyle")?.Value == "Italic";
-
-            if (isBold) sb.Append("<b>");
-            if (isItalic) sb.Append("<i>");
-
-            var text = element.Attribute("Text")?.Value ?? element.Value ?? string.Empty;
-            sb.Append(System.Net.WebUtility.HtmlEncode(text).Replace("\n", "<br/>"));
-
-            if (isItalic) sb.Append("</i>");
-            if (isBold) sb.Append("</b>");
-        }
-        else if (element.Name.LocalName == "Span")
-        {
-            foreach (var child in element.Elements()) ParseXamlElement(child, sb, ns);
-        }
-        else if (element.Name.LocalName == "LineBreak")
-        {
-            sb.Append("<br/>");
-        }
-        else
-        {
-            foreach (var child in element.Elements()) ParseXamlElement(child, sb, ns);
-        }
-    }
-
 }
